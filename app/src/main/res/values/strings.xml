@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">SimpleTodo</string>
+    <string name="hintAddItem">Add Item</string>
+    <string name="btnText">Add Item</string>
+    <string name="editButtonText">Save</string>
+    <string name="editItemTxt">Edit Item Below:</string>
+    <string name="app_name_edit">Edit Item</string>
+    <string name="action_add_item">Item</string>
+    <string name="action_remove_item">Remove Item</string>
+    <!-- revisit these strings -->
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="action_delete">Delete</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fragment_today">Today</string>
+    <string name="fragment_inbox">Inbox</string>
+    <string name="fragment_seven_days">Next Seven Days</string>
+    <string name="today">Today</string>
+    <string name="inbox">Inbox</string>
+    <string name="sevenDays">Next 7 days</string>
+
+    <string name="mark_as_complete">Mark as complete</string>
+    <string name="save">Save</string>
+    <string name="due_date">Due</string>
+    <string name="priority">Priority</string>
+    <string name="title">Title</string>
+    <string name="menu_refresh"> Refresh </string>
+    <string name="overdue">OverDue</string>
+
+</resources>

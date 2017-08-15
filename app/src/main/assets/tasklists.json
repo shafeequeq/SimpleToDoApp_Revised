@@ -1,0 +1,27 @@
+{
+  "kind": "tasks#taskLists",
+  "etag": "\"ZPF2pw17LedTHeJNTnTTe4cmlp4/xeURxvNykeX7pGflf-ADjTYKNkc\"",
+  "items": [
+    {
+      "kind": "tasks#taskList",
+      "id": "MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDow",
+      "title": "ShafTest Q's list",
+      "updated": "2017-08-07T14:25:57.000Z",
+      "selfLink": "https://www.googleapis.com/tasks/v1/users/@me/lists/MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDow"
+    },
+    {
+      "kind": "tasks#taskList",
+      "id": "MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MTgzMjQxNzA5MTow",
+      "title": "Office",
+      "updated": "2017-08-07T14:37:18.000Z",
+      "selfLink": "https://www.googleapis.com/tasks/v1/users/@me/lists/MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MTgzMjQxNzA5MTow"
+    },
+    {
+      "kind": "tasks#taskList",
+      "id": "MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MjEyMzQ3NjMyOjA",
+      "title": "Personal",
+      "updated": "2017-08-07T14:24:54.000Z",
+      "selfLink": "https://www.googleapis.com/tasks/v1/users/@me/lists/MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MjEyMzQ3NjMyOjA"
+    }
+  ]
+}

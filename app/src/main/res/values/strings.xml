@@ -26,7 +26,7 @@
     <string name="due_date">Due</string>
     <string name="priority">Priority</string>
     <string name="title">Title</string>
-    <string name="menu_refresh"> Refresh </string>
+    <string name="menu_refresh">Load JSON data</string>
     <string name="overdue">OverDue</string>
 
 </resources>

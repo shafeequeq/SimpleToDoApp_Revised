@@ -19,30 +19,21 @@ import android.view.ViewGroup;
 
 import com.example.android.Adapter.TaskItemTouchHelperCallback;
 import com.example.android.Adapter.TasksAdapter;
-import com.example.android.Helper.TaskParser;
 import com.example.android.Model.Database.TaskDb;
-import com.example.android.Model.GoogleTasksAPI.TaskListsGoogle;
 import com.example.android.Model.ITask;
-import com.example.android.simpletodoapprevised.MainActivity;
+import com.example.android.Activity.MainActivity;
 import com.example.android.simpletodoapprevised.R;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import static com.example.android.simpletodoapprevised.MainActivity.FILTER_KEY;
+import static com.example.android.Activity.MainActivity.FILTER_KEY;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class TodayFragment extends Fragment implements MainActivity.IFragmentCommunication , TaskItemTouchHelperCallback.TaskItemTouchListener , AddEditDialogFragment.OnAddEditFragmentInteractionListener {
 
     private static final String TAG = "TodayFragment";
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
     private String mParam1;
     private String mParam2;
 
@@ -52,15 +43,78 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
     private ItemTouchHelper mItemTouchHelper;
 
     private TasksAdapter mAdapter;
-    private List<ITask> mTasks;
+
+    private List<ITask> mInsertedTasks;
+    private List<ITask> mDeletedTasks;
+    private List<ITask> mUpdatedTasks;
+
+    //private List<ITask> mTasks;
     private String mFilter;
     private IFragmentActivityCallback mActivityCallback;
-    //private ActionModeCallback actionModeCallback;
-    //private ActionMode actionMode;
 
     public TodayFragment( ) {
         // Required empty public constructor
+        mInsertedTasks = new ArrayList<>();
+        mDeletedTasks = new ArrayList<>();
+        mUpdatedTasks = new ArrayList<>();
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_today, container, false);
+        rootView.setTag(TAG);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_today);
+
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager( mLayoutManager );
+        //recyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
+        mAdapter = new TasksAdapter(getActivity(), null);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        myUpdateOperation();
+                    }
+                }
+        );
+
+        //actionModeCallback = new ActionModeCallback();
+        TaskItemTouchHelperCallback taskItemTouchHelperCallback = new TaskItemTouchHelperCallback(  this );
+        mItemTouchHelper = new ItemTouchHelper(taskItemTouchHelperCallback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        return rootView;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String filter = getArguments().getString(FILTER_KEY);
+        mFilter = filter;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle( getTitle());
+        actionBar.setDisplayHomeAsUpEnabled( true );
+        List<ITask> tasks;
+
+        refreshData();
     }
 
     @Override
@@ -81,7 +135,13 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
         this.mActivityCallback = null;
     }
 
-    public static TodayFragment newInstance( String filter ) {
+    @Override
+    public void onStop() {
+        super.onStop();
+        // TODO persist data to database.
+    }
+
+    public static TodayFragment newInstance(String filter ) {
         TodayFragment fragment = new TodayFragment();
 
         Bundle args = new Bundle();
@@ -91,31 +151,27 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        String filter = getArguments().getString(FILTER_KEY);
-        mFilter = filter;
-
+    private void refreshData(){
+        List<ITask> tasks;
+        // Get the latest data.
         if (mActivityCallback != null) {
-            mTasks = mActivityCallback.getAllTasks( mFilter );
+            tasks = mActivityCallback.getAllTasks( mFilter );
         }
         else
-            mTasks = new ArrayList<>();
+            tasks = new ArrayList<>();
 
+        mAdapter.reloadTasks( tasks );
+        mAdapter.notifyDataSetChanged();
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle( getTitle());
-        actionBar.setDisplayHomeAsUpEnabled( true );
+        clearPendingChanges();
 
     }
 
+    private void clearPendingChanges(){
+        mInsertedTasks.clear();
+        mUpdatedTasks.clear();
+        mDeletedTasks.clear();
+    }
     private String getTitle(){
         String title = getString( R.string.inbox);
         if( mFilter != null ){
@@ -129,97 +185,19 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
         return title;
     }
 
+    // Will be called by the parent activity when data has been refreshed from other active fragments. Will rarely be used, as we are syncing the adapter OnResume().
     @Override
     public void onDataRefresh( List<ITask> newData ) {
-         mTasks = newData;
-         mAdapter.reloadTasks( mTasks );
+         mAdapter.reloadTasks( newData );
          mAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_today, container, false);
-        rootView.setTag(TAG);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_today);
-
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager( mLayoutManager );
-        //recyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-        mAdapter = new TasksAdapter(getActivity(), mTasks);
-        mRecyclerView.setAdapter(mAdapter);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
-
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        myUpdateOperation();
-                    }
-                }
-        );
-
-         //actionModeCallback = new ActionModeCallback();
-        TaskItemTouchHelperCallback taskItemTouchHelperCallback = new TaskItemTouchHelperCallback(  this );
-        mItemTouchHelper = new ItemTouchHelper(taskItemTouchHelperCallback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-
-        return rootView;
-    }
-
     private void myUpdateOperation(){
-        mAdapter.reloadTasks( mTasks );
+        refreshData();
         mSwipeRefreshLayout.setRefreshing( false );
-
     }
 
-    protected static TodayFragment newInstance( String param1, String param2 ) {
-
-        Bundle args = new Bundle();
-
-        TodayFragment fragment = new TodayFragment();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private static TaskDb createTask(String id , String title , String priority , String taskListID , String status , Date lastUpdated ){
-        TaskDb taskDb = new TaskDb();
-        taskDb.id = id;
-        taskDb.title = title;
-        taskDb.priority = priority;
-        taskDb.taskListID = taskListID;
-        taskDb.status = status;
-        taskDb.lastUpdated = lastUpdated;
-
-        return taskDb;
-    }
-
-    private static Date getTodayPlusDays(int daysAgo) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DATE, daysAgo);
-        return calendar.getTime();
-    }
-
-
-
-    private List<ITask> getTasksfromJSON(){
-        TaskParser parser = new TaskParser("tasklists.json", "taskdata.json", this.getContext());
-        TaskListsGoogle lists = parser.getTaskLists();
-        return lists.getITasks();
-    }
-
+    // Item -Touch handler interface implementation.
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
         if (source.getItemViewType() != target.getItemViewType()) {
@@ -236,7 +214,7 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
         if( direction == ItemTouchHelper.RIGHT){
             // launch edit dialog.
             TaskDb taskDB = null;
-            ITask task = mTasks.get( position );
+            ITask task = mAdapter.getItem( position );
             if( task instanceof TaskDb){
                 taskDB = (TaskDb)task;
             }
@@ -251,6 +229,7 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
 
     }
 
+    // Called after the Add/Edit dialog has finished. Returns with the updated task.
     @Override
     public void onFinishAddEditDialog(ITask task) {
         // Updat

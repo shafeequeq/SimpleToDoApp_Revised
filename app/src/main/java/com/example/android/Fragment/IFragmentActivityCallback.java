@@ -12,5 +12,7 @@ public interface IFragmentActivityCallback {
     // get Data.
     public List<ITask> getAllTasks(String filter);
 
-    // TODO put the onMethods here.
+    // persist Data
+    public void persistChanges(List<ITask> mInserted , List<ITask> mUpdated , List<ITask> mDeleted );
+
 }

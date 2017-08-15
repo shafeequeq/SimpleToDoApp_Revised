@@ -118,6 +118,11 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
         return mTasks.size();
     }
 
+    public ITask getItem( int position){
+        if (mTasks != null)
+            return mTasks.get( position );
+        return null;
+    }
 
     @Override
     public boolean onMove(int sourcePos , int destPos) {
@@ -133,6 +138,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
         mTasks.remove( position );
         notifyItemRemoved( position );
     }
+
 
 
 }

@@ -1,4 +1,4 @@
-package com.example.android.simpletodoapprevised;
+package com.example.android.Activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -27,11 +27,11 @@ import com.example.android.Helper.DatabaseInitializer;
 import com.example.android.Model.Database.TaskDatabase;
 import com.example.android.Model.Database.TaskDb;
 import com.example.android.Model.ITask;
+import com.example.android.simpletodoapprevised.R;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Filter;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , IFragmentActivityCallback , AddEditDialogFragment.OnAddEditFragmentInteractionListener {
@@ -85,28 +85,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (savedInstanceState != null) {
                 return;
             }
-            dbSetup();
             initFragment();
         }
+        dbSetup();
     }
 
-    private void launchAddEditDialogFragment(){
-        AddEditDialogFragment addEditDialogFragment = AddEditDialogFragment.newInstance( AddEditDialogFragment.MODE_NEW , null );
-        try {
-            addEditDialogFragment.show(getSupportFragmentManager(), "fragment_add_task");
-        }
-        catch(Exception e){
-            Log.e( "MainActivity" , e.getMessage());
-        }
-    }
-
-    private void initFragment(){
-
-        TodayFragment firstFragment = TodayFragment.newInstance( FilterData.FILTER_TODAY );
-
-        // Add the fragment to the 'fragment_container' FrameLayout
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, firstFragment).commit();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
@@ -117,13 +105,82 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         OnFragmentSelected( id );
 
-        //noinspection SimplifiableIfStatement
-      //  if (id == R.id.action_search) {
         // TODO: handle navigation
 
         // Closing drawer on item click
         mDrawerLayout.closeDrawers();
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.action_search) {
+            Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        else if( id == R.id.menu_refresh ){
+            // TODO : show warning message to user, that his current data will be deleted. Take consent before loading.
+            if( mDB != null ){
+                DatabaseInitializer.populateSyncFromJSON( mDB , this );
+
+                notifyDataRefresh(  );
+            }
+            // Reload test data from DB.
+            return true;
+        }
+        else if (id == android.R.id.home) {
+            mDrawerLayout.openDrawer(GravityCompat.START);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public List<ITask> getAllTasks(String filter) {
+        List<ITask> tasks = new ArrayList<>();
+
+        if( ( filter != null) &&( mDB != null)){
+            if( filter.equalsIgnoreCase( FilterData.FILTER_TODAY ) ){
+                Date before = DatabaseInitializer.GetTodayEndofDay(  );
+                List<TaskDb> list  = mDB.taskModel().loadTasksDueBy( before );
+                tasks.addAll( list );
+            }
+            else if( filter.equalsIgnoreCase( FilterData.FILTER_ALL)){
+                List<TaskDb> list  = mDB.taskModel().loadAllTasks();
+                tasks.addAll( list );
+            }
+            else if( filter.equalsIgnoreCase( FilterData.FILTER_NEXT_SEVEN_DAYS )){
+                Date start = DatabaseInitializer.GetTodayStartofDay(  );
+                Date end = DatabaseInitializer.GetTodayPlusDays( 7 );
+                List<TaskDb> list  = mDB.taskModel().loadTasksDueBetween( start , end );
+                tasks.addAll( list );
+            }
+
+        }
+
+        return tasks;
+    }
+
+    @Override
+    public void persistChanges(List<ITask> mInserted, List<ITask> mUpdated, List<ITask> mDeleted) {
+
+    }
+
+    @Override
+    public void onFinishAddEditDialog(ITask task) {
+
+    }
+
+    private void initFragment(){
+
+        TodayFragment firstFragment = TodayFragment.newInstance( FilterData.FILTER_TODAY );
+
+        // Add the fragment to the 'fragment_container' FrameLayout
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, firstFragment).commit();
     }
 
     private void OnFragmentSelected( int id){
@@ -150,17 +207,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction transaction = fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment);
         // add to back stack
         transaction.addToBackStack( null );
-
         transaction.commit();
+   }
 
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void launchAddEditDialogFragment(){
+        AddEditDialogFragment addEditDialogFragment = AddEditDialogFragment.newInstance( AddEditDialogFragment.MODE_NEW , null );
+        try {
+            addEditDialogFragment.show(getSupportFragmentManager(), "fragment_add_task");
+        }
+        catch(Exception e){
+            Log.e( "MainActivity" , e.getMessage());
+        }
     }
 
     private void notifyDataRefresh(  ){
@@ -175,79 +232,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ((IFragmentCommunication)fragment).onDataRefresh( tasks );
             }
         }
-
-    }
-
-    public interface IFragmentCommunication {
-        public void onDataRefresh(List<ITask> newData);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_search) {
-            Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        else if( id == R.id.menu_refresh ){
-
-            if( mDB != null ){
-                DatabaseInitializer.populateSyncFromJSON( mDB , this );
-
-                notifyDataRefresh(  );
-            }
-            // Reload test data from DB.
-            return true;
-        }
-        else if (id == android.R.id.home) {
-            mDrawerLayout.openDrawer(GravityCompat.START);
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void dbSetup(){
         if( mDB == null){
-            mDB = TaskDatabase.getInMemoryDatabase( this );
+            mDB = TaskDatabase.getDatabase( this );
         }
-        DatabaseInitializer.populateSyncFromJSON( mDB , this );
+        //DatabaseInitializer.populateSyncFromJSON( mDB , this );
     }
 
-    @Override
-    public List<ITask> getAllTasks(String filter) {
-        List<ITask> tasks = new ArrayList<>();
-
-        if( ( filter != null) &&( mDB != null)){
-            if( filter.equalsIgnoreCase( FilterData.FILTER_TODAY ) ){
-                Date before = DatabaseInitializer.GetTodayEndofDay(  );
-                List<TaskDb> list  = mDB.taskModel().loadTasksDueBy( before );
-                tasks.addAll( list );
-            }
-            else if( filter.equalsIgnoreCase( FilterData.FILTER_ALL)){
-                List<TaskDb> list  = mDB.taskModel().loadAllTasks();
-                tasks.addAll( list );
-            }
-            else if( filter.equalsIgnoreCase( FilterData.FILTER_NEXT_SEVEN_DAYS )){
-                // TODO change this code.
-                Date start = DatabaseInitializer.GetTodayStartofDay(  );
-                Date end = DatabaseInitializer.GetTodayPlusDays( 7 );
-                List<TaskDb> list  = mDB.taskModel().loadTasksDueBetween( start , end );
-                tasks.addAll( list );
-            }
-
-        }
-
-        return tasks;
-    }
-
-    @Override
-    public void onFinishAddEditDialog(ITask task) {
-
+    public interface IFragmentCommunication {
+        public void onDataRefresh(List<ITask> newData);
     }
 
     public class FilterData {

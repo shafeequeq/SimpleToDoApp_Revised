@@ -5,6 +5,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.TypeConverters;
+import android.arch.persistence.room.Update;
 
 import com.example.android.Helper.DateConverter;
 
@@ -40,12 +41,23 @@ public interface TaskDao {
     @Insert(onConflict = IGNORE)
     void insertTask(TaskDb task);
 
+    @Insert(onConflict = IGNORE)
+    void insertTasks(TaskDb... taskDbs);
+
     @Delete
     void deleteTask(TaskDb task);
+
+    @Delete
+    public void deleteTasks(TaskDb... taskDbs);
 
     @Query("delete from taskdb where id = :id")
     int deleteTaskByID(String id);
 
     @Query("DELETE FROM taskdb")
     void deleteAll();
+
+    @Update
+    public void updateTasks(TaskDb... taskDbs);
+
+
 }

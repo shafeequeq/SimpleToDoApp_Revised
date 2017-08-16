@@ -1,6 +1,7 @@
 package com.example.android.Activity;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.graphics.drawable.VectorDrawableCompat;
@@ -23,7 +24,7 @@ import android.widget.Toast;
 import com.example.android.Fragment.AddEditDialogFragment;
 import com.example.android.Fragment.IFragmentActivityCallback;
 import com.example.android.Fragment.TodayFragment;
-import com.example.android.Helper.DatabaseInitializer;
+import com.example.android.Model.Database.DatabaseInitializer;
 import com.example.android.Model.Database.TaskDatabase;
 import com.example.android.Model.Database.TaskDb;
 import com.example.android.Model.ITask;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawerLayout;
     private TaskDatabase mDB;
     public static final String FILTER_KEY = "FILTER";
+    private static final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Adding Toolbar to Main screen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // avoid scrolling of toolbar.
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        params.setScrollFlags(0);  // clear all scroll flags
+        toolbar.setLayoutParams( params );
 
 
         // Create Navigation drawer and inlfate layout
@@ -61,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             indicator.setTint(ResourcesCompat.getColor(getResources(),R.color.white,getTheme()));
             supportActionBar.setHomeAsUpIndicator(indicator);
             supportActionBar.setDisplayHomeAsUpEnabled(true);
+
         }
 
         // Set behavior of Navigation drawer
@@ -165,13 +172,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void persistChanges(List<ITask> mInserted, List<ITask> mUpdated, List<ITask> mDeleted) {
-
-    }
-
-    @Override
-    public void onFinishAddEditDialog(ITask task) {
-
+    public void onFinishAddEditDialog(ITask task, String mode, int position) {
+        if( ( task != null)&&( mode.equalsIgnoreCase( AddEditDialogFragment.MODE_NEW))){
+            taskAdded( task );
+            notifyDataRefresh();
+        }
     }
 
     private void initFragment(){
@@ -216,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             addEditDialogFragment.show(getSupportFragmentManager(), "fragment_add_task");
         }
         catch(Exception e){
-            Log.e( "MainActivity" , e.getMessage());
+            Log.e( TAG , e.getMessage());
         }
     }
 
@@ -224,12 +229,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         for( Fragment fragment : fragments){
-            if ((mDB != null) && (fragment.isVisible()) && ( fragment instanceof MainActivity.IFragmentCommunication)){
-                // get data from DB.
-                List<TaskDb> listT = mDB.taskModel().loadAllTasks();
-                ArrayList<ITask> tasks = new ArrayList<>();
-                tasks.addAll( listT );
-                ((IFragmentCommunication)fragment).onDataRefresh( tasks );
+            if ((fragment.isVisible()) && ( fragment instanceof MainActivity.IFragmentCommunication)){
+
+                ((IFragmentCommunication)fragment).refreshData(  );
             }
         }
     }
@@ -242,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public interface IFragmentCommunication {
-        public void onDataRefresh(List<ITask> newData);
+        public void refreshData();
     }
 
     public class FilterData {
@@ -254,6 +256,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         public FilterData(String filterString) {
             this.mFilterString = filterString;
+        }
+    }
+
+    /*
+    Data Model Add / Update methods. can later be moved to a specific data model class.
+     */
+
+    @Override
+    public void taskAdded(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().insertTask((TaskDb) task);
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void taskUpdated(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().updateTasks((TaskDb) task);
+
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+                finally {
+                }
+            }
+        }
+    }
+
+    @Override
+    public void taskDeleted(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().deleteTask((TaskDb) task);
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+            }
         }
     }
 }

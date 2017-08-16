@@ -7,6 +7,7 @@ import android.content.Context;
 
 /**
  * Created by shafe on 8/12/2017.
+ * Updated for check-in.
  */
 
 @Database(entities = {TaskDb.class, TaskListDb.class}, version = 1)

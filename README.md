@@ -4,7 +4,7 @@
 
 Submitted by: **Shafeeque Qazi**
 
-Time spent: **120** hours spent in total
+Time spent: **95** hours spent in total
 
 ## User Stories
 

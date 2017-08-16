@@ -21,6 +21,9 @@ import com.example.android.simpletodoapprevised.R;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
+
+import static com.example.android.Fragment.TodayFragment.KEY_POSITION;
 
 
 public class AddEditDialogFragment extends DialogFragment {
@@ -34,6 +37,7 @@ public class AddEditDialogFragment extends DialogFragment {
 
 
     private String mModeStr;
+    private int mPosition; // position in adapter initiating this.
     private ITask mTask = null;
 
     // Controls
@@ -69,6 +73,8 @@ public class AddEditDialogFragment extends DialogFragment {
                 mTask = (ITask) taskDb;
             }
 
+            mPosition = getArguments().getInt( KEY_POSITION );
+
         }
     }
 
@@ -86,7 +92,7 @@ public class AddEditDialogFragment extends DialogFragment {
         mEditTextTitle = (EditText)view.findViewById( R.id.title);
         mSpinnerPriority = (Spinner) view.findViewById( R.id.priority);
         mPickerDueDate = (DatePicker) view.findViewById( R.id.duedate);
-        mCheckBoxIsComplete = (CheckBox)view.findViewById( R.id.is_complete);
+        //mCheckBoxIsComplete = (CheckBox)view.findViewById( R.id.is_complete);
         mBtnSave = (Button)view.findViewById( R.id.save);
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,23 +164,35 @@ public class AddEditDialogFragment extends DialogFragment {
             initDueDate();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+
     private void  onSave(  ) {
         //TaskDb task = new TaskDb();
-        if (mListener != null) {
-            TaskDb taskDb = new TaskDb();
-            taskDb.setTitle( mEditTextTitle.getText().toString());
-            taskDb.setPriority( mSpinnerPriority.getSelectedItem().toString() ); ;
-            //Set date in milliseconds
-            Calendar dueDate = Calendar.getInstance();
 
-            dueDate.set(Calendar.DAY_OF_MONTH, mPickerDueDate.getDayOfMonth());
-            dueDate.set(Calendar.MONTH, mPickerDueDate.getMonth());
-            dueDate.set(Calendar.YEAR, mPickerDueDate.getYear());
+        if( mTask == null){
+            mTask = new TaskDb();
+        }
+        mTask.setTitle( mEditTextTitle.getText().toString());
+        mTask.setPriority( mSpinnerPriority.getSelectedItem().toString() ); ;
+        //Set date in milliseconds
+        Calendar dueDate = Calendar.getInstance();
 
-            taskDb.setDueDate( dueDate.getTime() );
+        dueDate.set(Calendar.DAY_OF_MONTH, mPickerDueDate.getDayOfMonth());
+        dueDate.set(Calendar.MONTH, mPickerDueDate.getMonth());
+        dueDate.set(Calendar.YEAR, mPickerDueDate.getYear());
 
-            mListener.onFinishAddEditDialog( (ITask) taskDb );
+        mTask.setDueDate( dueDate.getTime() );
+        if ( (mModeStr.equalsIgnoreCase(MODE_NEW)) && (mListener != null) ) {
+            mTask.setID( UUID.randomUUID().toString() );
+            // TODO : setTaskList ID.
+            mTask.setTaskListID( "MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDow"); // currently hard-coded.
+            mListener.onFinishAddEditDialog( (ITask) mTask , mModeStr , mPosition);
+        }
+        else if (mModeStr.equalsIgnoreCase(MODE_EDIT)){ // Item was right slided for update from the fragment.
+            // send result to fragment directly.
+            OnAddEditFragmentInteractionListener listener = (OnAddEditFragmentInteractionListener)getTargetFragment();
+            if( listener != null){
+                listener.onFinishAddEditDialog( (ITask) mTask , mModeStr , mPosition);
+            }
         }
         dismiss();
     }
@@ -200,6 +218,6 @@ public class AddEditDialogFragment extends DialogFragment {
      * expect to receive data/ completion status from this fragment after invocation.
      */
     public interface OnAddEditFragmentInteractionListener {
-        void onFinishAddEditDialog(ITask task);
+        void onFinishAddEditDialog(ITask task , String mode , int position);
     }
 }

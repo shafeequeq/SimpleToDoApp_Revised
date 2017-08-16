@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.example.android.Helper.DatabaseInitializer;
+import com.example.android.Model.Database.DatabaseInitializer;
 import com.example.android.Helper.TaskParser;
 import com.example.android.Model.Database.TaskDatabase;
 import com.example.android.Model.Database.TaskDb;
@@ -123,7 +123,25 @@ public class ExampleInstrumentedTest {
 
     }
 
+    @Test
+    public void testUpdate() {
+        dbSetup();
+        assert (mDB != null);
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        DatabaseInitializer.populateSyncFromJSON( mDB , appContext);
 
+
+        final String id = "MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MTgzMjQxNzA5MTo2MjUyODE1NzY";
+
+        TaskDb taskDb = mDB.taskModel().loadTaskById( id );
+
+        taskDb.setTitle( "Task4_Updated");
+
+        mDB.taskModel().updateTasks( taskDb );
+        TaskDb taskDb1 = mDB.taskModel().loadTaskById( id );
+
+
+    }
 
 }
 

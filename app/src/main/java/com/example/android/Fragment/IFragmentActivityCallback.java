@@ -13,6 +13,9 @@ public interface IFragmentActivityCallback {
     public List<ITask> getAllTasks(String filter);
 
     // persist Data
-    public void persistChanges(List<ITask> mInserted , List<ITask> mUpdated , List<ITask> mDeleted );
+    //public void persistChanges(List<ITask> mInserted , List<ITask> mUpdated , List<ITask> mDeleted );
 
+    public void taskAdded( ITask task);
+    public void taskUpdated( ITask task);
+    public void taskDeleted( ITask task);
 }

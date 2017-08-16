@@ -14,12 +14,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.android.Fragment.AddEditDialogFragment;
 import com.example.android.Fragment.IFragmentActivityCallback;
@@ -101,8 +101,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Notify the fragments about the search query.
+                notifySearchQuery(query);
+                // Reset SearchView
+                searchView.clearFocus();
+                searchView.setQuery("", false);
+                searchView.setIconified(true);
+                searchItem.collapseActionView();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
         return true;
     }
+
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -124,11 +146,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         int id = item.getItemId();
 
-        if (id == R.id.action_search) {
+       /* if (id == R.id.action_search) {
             Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
             return true;
         }
-        else if( id == R.id.menu_refresh ){
+        else */ if( id == R.id.menu_refresh ){
             // TODO : show warning message to user, that his current data will be deleted. Take consent before loading.
             if( mDB != null ){
                 DatabaseInitializer.populateSyncFromJSON( mDB , this );
@@ -236,6 +258,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private void notifySearchQuery( String searchQuery){
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for( Fragment fragment : fragments){
+            if ((fragment.isVisible()) && ( fragment instanceof MainActivity.IFragmentCommunication)){
+
+                ((IFragmentCommunication)fragment).searchTasks( searchQuery );
+            }
+        }
+    }
+
     private void dbSetup(){
         if( mDB == null){
             mDB = TaskDatabase.getDatabase( this );
@@ -245,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public interface IFragmentCommunication {
         public void refreshData();
+        public void searchTasks( String tasksQuery );
     }
 
     public class FilterData {

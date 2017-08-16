@@ -23,10 +23,15 @@
 
     <string name="mark_as_complete">Mark as complete</string>
     <string name="save">Save</string>
-    <string name="due_date">Due</string>
+    <string name="due_today">Due </string>
+    <string name="due_on">Due </string>
     <string name="priority">Priority</string>
     <string name="title">Title</string>
     <string name="menu_refresh">Load JSON data</string>
     <string name="overdue">OverDue</string>
-
+    <string name="empty_list">Nothing to show</string>
+    <string name="no_tasks">No Tasks matched the query...</string>
+    <string name="swipe_down">"Swipe down to exit search mode..."</string>
+    <string name="search_results">" Search Results .."</string>
+    <string name="item_deleted">"Item deleted!"</string>
 </resources>

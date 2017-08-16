@@ -1,11 +1,9 @@
-package com.example.android.Helper;
+package com.example.android.Model.Database;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.example.android.Model.Database.TaskDatabase;
-import com.example.android.Model.Database.TaskDb;
-import com.example.android.Model.Database.TaskListDb;
+import com.example.android.Helper.TaskParser;
 import com.example.android.Model.GoogleTasksAPI.TaskGoogle;
 import com.example.android.Model.GoogleTasksAPI.TaskListGoogle;
 import com.example.android.Model.GoogleTasksAPI.TaskListsGoogle;
@@ -24,6 +22,8 @@ public class DatabaseInitializer {
     public static void populateSync(@NonNull final TaskDatabase db) {
         populateWithTestData(db);
     }
+
+    public static void clearAllData(@NonNull final TaskDatabase db){ clearData(db);}
 
     public static void populateSyncFromJSON(@NonNull final TaskDatabase db , Context context) {
         populateWithTestDataFromJSON(db , context);
@@ -110,7 +110,6 @@ public class DatabaseInitializer {
         calendar.set(Calendar.HOUR_OF_DAY , calendar.getMaximum(Calendar.HOUR_OF_DAY));
         calendar.set(Calendar.MINUTE , calendar.getMaximum(Calendar.MINUTE));
         calendar.set(Calendar.SECOND , calendar.getMaximum(Calendar.SECOND));
-
         return calendar.getTime();
     }
 
@@ -123,64 +122,50 @@ public class DatabaseInitializer {
         calendar.set(Calendar.HOUR_OF_DAY , calendar.getMinimum(Calendar.HOUR_OF_DAY));
         calendar.set(Calendar.MINUTE , calendar.getMinimum(Calendar.MINUTE));
         calendar.set(Calendar.SECOND , calendar.getMinimum(Calendar.SECOND));
-
-
         return calendar.getTime();
     }
 
+    private static void clearData(TaskDatabase db){
+        db.beginTransaction();
+        try {
+            db.taskModel().deleteAll();
+            db.taskListModel().deleteAll();
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+    }
+
     private static void populateWithTestData(TaskDatabase db) {
-        db.taskModel().deleteAll();
-        db.taskListModel().deleteAll();
+        db.beginTransaction();
+        try {
+            db.taskModel().deleteAll();
+            db.taskListModel().deleteAll();
 
-        String taskListID = "abc";
-        String taskListTitle = "Personal";
+            String taskListID = "abc";
+            String taskListTitle = "Personal";
 
-        TaskListDb taskList = createTaskList( taskListID , taskListTitle , "none" , GetTodayPlusDays( 0 ));
-        db.taskListModel().insertTaskList( taskList );
+            TaskListDb taskList = createTaskList(taskListID, taskListTitle, "none", GetTodayPlusDays(0));
+            db.taskListModel().insertTaskList(taskList);
 /*
 
  */
-        // add tasks.
-        TaskDb taskDb = createTask("MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDoxMzUyNzE3NjAw", "Test Data", "tasks#task", taskListID , "needsAction" , GetTodayPlusDays(0) );
-        db.taskModel().insertTask( taskDb );
+            // add tasks.
+            TaskDb taskDb = createTask("MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDoxMzUyNzE3NjAw", "Test Data", "tasks#task", taskListID, "needsAction", GetTodayPlusDays(0));
+            db.taskModel().insertTask(taskDb);
 
-        taskDb = createTask("MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDoxMjMxMDkxMTcz", "New Work Items", "tasks#task", taskListID , "needsAction" , GetTodayPlusDays(0) );
-        db.taskModel().insertTask( taskDb );
-
-
-       /* User user1 = addUser(db, "1", "Jason", "Seaver", 40);
-        User user2 = addUser(db, "2", "Mike", "Seaver", 12);
-        addUser(db, "3", "Carol", "Seaver", 15);
-
-        Book book1 = addBook(db, "1", "Dune");
-        Book book2 = addBook(db, "2", "1984");
-        Book book3 = addBook(db, "3", "The War of the Worlds");
-        Book book4 = addBook(db, "4", "Brave New World");
-        addBook(db, "5", "Foundation");
-        try {
-            // Loans are added with a delay, to have time for the UI to react to changes.
-
-            Date today = getTodayPlusDays(0);
-            Date yesterday = getTodayPlusDays(-1);
-            Date twoDaysAgo = getTodayPlusDays(-2);
-            Date lastWeek = getTodayPlusDays(-7);
-            Date twoWeeksAgo = getTodayPlusDays(-14);
-
-            addLoan(db, "1", user1, book1, twoWeeksAgo, lastWeek);
-            Thread.sleep(DELAY_MILLIS);
-            addLoan(db, "2", user2, book1, lastWeek, yesterday);
-            Thread.sleep(DELAY_MILLIS);
-            addLoan(db, "3", user2, book2, lastWeek, today);
-            Thread.sleep(DELAY_MILLIS);
-            addLoan(db, "4", user2, book3, lastWeek, twoDaysAgo);
-            Thread.sleep(DELAY_MILLIS);
-            addLoan(db, "5", user2, book4, lastWeek, today);
-            Log.d("DB", "Added loans");
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            taskDb = createTask("MDQxOTI0MzIxNTAzNjYwMDY5NDQ6MDoxMjMxMDkxMTcz", "New Work Items", "tasks#task", taskListID, "needsAction", GetTodayPlusDays(0));
+            db.taskModel().insertTask(taskDb);
+            //Mark transaction as successful.
+            db.setTransactionSuccessful();
         }
-        */
+        catch(Exception e){
+
+        }
+        finally {
+            db.endTransaction();
+        }
+
     }
 
     private static void populateWithTestDataFromJSON(TaskDatabase db , Context context ) {

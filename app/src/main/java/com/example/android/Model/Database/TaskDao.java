@@ -22,19 +22,19 @@ import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 @TypeConverters(DateConverter.class)
 public interface TaskDao {
     @Query("select * from taskdb" +
-            " ORDER BY dueDate DESC")
+            " ORDER BY dueDate ASC")
     List<TaskDb> loadAllTasks();
 
     @Query("select * from taskdb where dueDate <= :before " +
-      " ORDER BY dueDate DESC")
+      " ORDER BY dueDate ASC")
     List<TaskDb> loadTasksDueBy(Date before);
 
     @Query("select * from taskdb where dueDate >= :after" +
-            " ORDER BY dueDate DESC")
+            " ORDER BY dueDate ASC")
     List<TaskDb> loadTasksDueAfter(Date after);
 
     @Query("select * from taskdb where dueDate >= :start" +
-    " AND dueDate <= :end" + " ORDER BY dueDate DESC")
+    " AND dueDate <= :end" + " ORDER BY dueDate ASC")
     List<TaskDb> loadTasksDueBetween(Date start , Date end);
 
     @Query("select * from taskdb where id = :id")

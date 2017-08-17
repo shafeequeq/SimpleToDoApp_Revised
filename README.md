@@ -32,6 +32,7 @@ The following **additional** features are implemented:
 * [X] Clean interfaces defined for Task. Will plugin Google Task API in future to save tasks to Cloud back-end.
 * [X] Fragment and clean communication between fragments , activity using interfaces.
 * [X] Recycler View implementation and Custom Adapter and ViewHolder.
+* [X] Floating Action Bar implementation. Material Design theme and logic.
 * [X] SwipeRefreshLayout implementation. 
 * [X] ActionMode implementation.
 * [X] NavigationDrawer implementation.

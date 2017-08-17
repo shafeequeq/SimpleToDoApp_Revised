@@ -25,7 +25,8 @@ The following **optional** features are implemented:
 
 The following **additional** features are implemented:
 
-* [X] Android Persistence Pattern involving Room , Dao and LiveData!
+* [X] MVP Pattern. Clean segregation of MODEL - VIEW. Custom Adapter implementation. Interface agnostic to persistence layer, can be local or remote in future.
+* [X] Android Persistence Pattern involving Room , Dao.
 * [X] Slide left to delete ; Slide right to edit.
 * [X] Loading initial data from JSON source!
 * [X] Clean interfaces defined for Task. Will plugin Google Task API in future to save tasks to Cloud back-end.
@@ -35,7 +36,7 @@ The following **additional** features are implemented:
 * [X] ActionMode implementation.
 * [X] NavigationDrawer implementation.
 * [X] Search of Tasks.
-* [X] Empty View - handling of zero tasks.
+* [X] Empty View (Happy image ) - When zero items in list.
 * [X] DividerItemDecoration for line splits in RecyclerView of tasks.
 
 

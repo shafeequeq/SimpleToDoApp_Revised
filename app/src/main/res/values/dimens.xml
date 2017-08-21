@@ -18,5 +18,5 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="marginEditDialog">20dp</dimen>
     <dimen name="largeFont">20sp</dimen>
-    <dimen name="mediumFont">16sp</dimen>
+    <dimen name="mediumFont">18sp</dimen>
 </resources>

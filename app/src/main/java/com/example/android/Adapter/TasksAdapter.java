@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.Fragment.TodayFragment;
@@ -19,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by shafe on 8/7/2017.
@@ -38,7 +39,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         public TextView mTaskTitle, mTaskDueDate;
-        public ImageView mImgView;
+        public CircleImageView mImgView;
+        //public ImageView mImgView;
         //public LinearLayout taskContainer;
 
         public MyViewHolder(View view) {
@@ -47,7 +49,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
            // mTaskNotes = (TextView) view.findViewById(R.id.txt_notes);
             //taskDueDesc = (TextView) view.findViewById(R.id.txt_due_string);
             mTaskDueDate = (TextView) view.findViewById(R.id.txt_due_date);
-            mImgView = (ImageView) view.findViewById(R.id.priority);
+            mImgView = (CircleImageView) view.findViewById(R.id.priority);
 
             //taskContainer = (LinearLayout) view.findViewById(R.id.task_container);
             //  view.setOnLongClickListener(this);
@@ -142,7 +144,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
             if (priority.equalsIgnoreCase(PRIORITY_HIGH)) {
                 holder.mImgView.setImageResource(R.drawable.ic_priority_high);
             } else if (priority.equalsIgnoreCase(PRIORITY_LOW)) {
-                holder.mImgView.setImageResource(R.drawable.ic_priority_high);
+                holder.mImgView.setImageResource(R.drawable.ic_priority_low);
             }
         }
 

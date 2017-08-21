@@ -48,6 +48,7 @@ public class AddEditDialogFragment extends DialogFragment {
     private EditText mEditTextTitle;
     private Spinner mSpinnerPriority;
     private DatePicker mPickerDueDate;
+    //private CalendarPickerView mCalendarDueDate;
     private CheckBox mCheckBoxIsComplete;
     private Button mBtnSave;
     private TextInputLayout mTaskTitleLabel = null;
@@ -97,6 +98,12 @@ public class AddEditDialogFragment extends DialogFragment {
         mEditTextTitle = (EditText)view.findViewById( R.id.title);
         mSpinnerPriority = (Spinner) view.findViewById( R.id.priority);
         mPickerDueDate = (DatePicker) view.findViewById( R.id.duedate);
+        //mCalendarDueDate = (CalendarPickerView) view.findViewById(R.id.calendar_due_date);
+        /*Date today = new Date();
+        Calendar nextYear = Calendar.getInstance();
+        nextYear.add(Calendar.YEAR, 1);
+        mCalendarDueDate.init(today, nextYear.getTime())
+                .withSelectedDate(today);*/
         mTaskTitleLabel = (TextInputLayout) view.findViewById(R.id.title_layout);
         setupTaskTitleLabelError();
         mBtnSave = (Button)view.findViewById( R.id.save);
@@ -191,6 +198,8 @@ public class AddEditDialogFragment extends DialogFragment {
         calendar.setTime( today );
         mPickerDueDate.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
+
+        //mCalendarDueDate.setDate
     }
 
     private void setDueDate( Date dueDate){

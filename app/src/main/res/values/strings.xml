@@ -22,7 +22,7 @@
     <string name="mark_as_complete">Mark as complete</string>
     <string name="save">Save</string>
     <string name="due_today">Due </string>
-    <string name="due_on">Overdue</string>
+    <string name="due_on">Due on</string>
     <string name="priority">Priority</string>
     <string name="title">Title</string>
     <string name="menu_refresh">Load JSON data</string>

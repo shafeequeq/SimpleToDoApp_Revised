@@ -104,7 +104,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
             if (dueDate.compareTo(START_OF_DAY) < 0) {
                 // Mark OverDue
                 SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, ''yy");
-                dueString = getContext().getString(R.string.due_on)
+                dueString = getContext().getString(R.string.overdue)
                         + " : " + sdf.format(dueDate);
                 holder.mTaskDueDate.setTextColor(Color.RED);
             } else if (dueDate.compareTo(END_OF_DAY) <= 0) {
@@ -115,7 +115,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
 
                 holder.mTaskDueDate.setTextColor( Color.BLUE );
             } else {
-                // Show time of day when this is due.
+                // Show Date when this is due.
                 SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, ''yy");
                 dueString = getContext().getString(R.string.due_on)
                         + " : " + sdf.format(dueDate);

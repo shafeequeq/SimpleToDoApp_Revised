@@ -1,6 +1,4 @@
-package com.example.android.Fragment;
-
-import com.example.android.Model.ITask;
+package com.example.android.Interface;
 
 import java.util.List;
 

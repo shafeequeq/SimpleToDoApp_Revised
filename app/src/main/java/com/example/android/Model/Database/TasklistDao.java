@@ -29,18 +29,6 @@ public interface TasklistDao {
     @Query("delete from tasklistdb where id = :tasklistId")
     int deleteTaskListByID(String tasklistId);
 
-   /* @Insert(onConflict = IGNORE)
-    void insertOrReplaceUsers(User... users);
-
-    @Delete
-    void deleteUsers(User user1, User user2);
-
-    @Query("SELECT * FROM User WHERE User.age < :age") // TODO: Fix this!
-    List<User> findYoungerThan(int age);
-
-    @Query("SELECT * FROM User WHERE age < :age")
-    List<User> findYoungerThanSolution(int age);*/
-
     @Query("DELETE FROM tasklistdb")
     void deleteAll();
 }

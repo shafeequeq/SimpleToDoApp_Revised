@@ -8,10 +8,8 @@
     <color name="dark_grey">#424242</color>
     <color name="medium_grey">#9E9E9E</color>
     <color name="button_grey">#757575</color>
-    <!-- TODO -->
     <color name="title">#000000</color>
-
-    <color name="duedate">#4285f4</color>
+<color name="duedate">#4285f4</color>
     <color name="notes">#7a7a7a</color>
     <color name="icon_tint_normal">#7a7a7a</color>
     <color name="icon_tint_selected">#fed776</color>

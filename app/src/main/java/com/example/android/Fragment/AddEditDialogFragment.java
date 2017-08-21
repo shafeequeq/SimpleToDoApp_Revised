@@ -13,31 +13,33 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
+import com.codetroopers.betterpickers.radialtimepicker.RadialTimePickerDialogFragment;
+import com.example.android.Interface.ITask;
 import com.example.android.Model.Database.TaskDb;
-import com.example.android.Model.ITask;
 import com.example.android.simpletodoapprevised.R;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
 import static com.example.android.Fragment.TodayFragment.KEY_POSITION;
 
-
-public class AddEditDialogFragment extends DialogFragment {
-    // TODO: Rename parameter arguments, choose names that match
+public class AddEditDialogFragment extends DialogFragment implements CalendarDatePickerDialogFragment.OnDateSetListener , RadialTimePickerDialogFragment.OnTimeSetListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_MODE = "Mode";
     private static final String ARG_TASK_OBJECT = "param2";
 
     public static final String MODE_NEW = "New";
     public static final String MODE_EDIT = "Edit";
+    private static final String FRAG_TAG_DATE_PICKER = "fragment_date_picker_name";
+    private static final String FRAG_TAG_TIME_PICKER = "timePickerDialogFragment";
 
 
     private String mModeStr;
@@ -47,9 +49,11 @@ public class AddEditDialogFragment extends DialogFragment {
     // Controls
     private EditText mEditTextTitle;
     private Spinner mSpinnerPriority;
-    private DatePicker mPickerDueDate;
-    //private CalendarPickerView mCalendarDueDate;
-    private CheckBox mCheckBoxIsComplete;
+    private View mImageButtonContainer;
+    private TextView mTextViewDate;
+
+    private Calendar mDueDate = null;
+
     private Button mBtnSave;
     private TextInputLayout mTaskTitleLabel = null;
 
@@ -96,14 +100,15 @@ public class AddEditDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         mEditTextTitle = (EditText)view.findViewById( R.id.title);
+        mTextViewDate = (TextView)view.findViewById( R.id.textview_date);
         mSpinnerPriority = (Spinner) view.findViewById( R.id.priority);
-        mPickerDueDate = (DatePicker) view.findViewById( R.id.duedate);
-        //mCalendarDueDate = (CalendarPickerView) view.findViewById(R.id.calendar_due_date);
-        /*Date today = new Date();
-        Calendar nextYear = Calendar.getInstance();
-        nextYear.add(Calendar.YEAR, 1);
-        mCalendarDueDate.init(today, nextYear.getTime())
-                .withSelectedDate(today);*/
+        mImageButtonContainer = (View)view.findViewById( R.id.imageButtonContainer);
+        mImageButtonContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onEditDateTime();
+            }
+        });
         mTaskTitleLabel = (TextInputLayout) view.findViewById(R.id.title_layout);
         setupTaskTitleLabelError();
         mBtnSave = (Button)view.findViewById( R.id.save);
@@ -123,7 +128,68 @@ public class AddEditDialogFragment extends DialogFragment {
         getDialog().getWindow().setSoftInputMode(
 
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        // Based on the mode of invocation load data ( Edit or New )
+       loadData();
 
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnAddEditFragmentInteractionListener) {
+            mListener = (OnAddEditFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnAddEditFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int dayOfMonth) {
+        if( mDueDate == null)
+            mDueDate = Calendar.getInstance();
+
+        mDueDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        mDueDate.set(Calendar.MONTH, monthOfYear);
+        mDueDate.set(Calendar.YEAR, year);
+        updateTextViewDate();
+        // launch time fragment.
+        RadialTimePickerDialogFragment rtpd = new RadialTimePickerDialogFragment()
+                .setOnTimeSetListener( this );
+        if ( mDueDate == null ) initDueDate();
+        rtpd.setStartTime( mDueDate.get( Calendar.HOUR_OF_DAY ),
+                            mDueDate.get( Calendar.MINUTE) );
+        rtpd.show( getActivity().getSupportFragmentManager(), FRAG_TAG_TIME_PICKER);
+    }
+
+    @Override
+    public void onTimeSet(RadialTimePickerDialogFragment dialog, int hourOfDay, int minute) {
+        if( mDueDate == null)
+            mDueDate = Calendar.getInstance();
+
+        mDueDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        mDueDate.set(Calendar.MINUTE, minute);
+        updateTextViewDate();
+    }
+
+    private void onEditDateTime(){
+        if( mDueDate == null) initDueDate();
+
+        CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
+                .setOnDateSetListener( this );
+        cdp.setPreselectedDate( mDueDate.get( Calendar.YEAR ) ,
+                mDueDate.get( Calendar.MONTH),
+                mDueDate.get( Calendar.DAY_OF_MONTH));
+        cdp.show( getActivity().getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
+    }
+
+    private void loadData(){
         // Load all data in the Add/Edit dialog.
         if ( ( mModeStr.equalsIgnoreCase( AddEditDialogFragment.MODE_EDIT)) && (mTask != null)){
             // load all data from task object
@@ -150,12 +216,11 @@ public class AddEditDialogFragment extends DialogFragment {
             initControls();
         }
 
-
     }
 
 
+
     private void setupTaskTitleLabelError() {
-        //final TextInputLayout taskTitleLabel = (TextInputLayout) view.findViewById(R.id.title_layout);
         if( mTaskTitleLabel != null){
             mTaskTitleLabel.getEditText().addTextChangedListener(new TextWatcher() {
                 // ...
@@ -172,7 +237,6 @@ public class AddEditDialogFragment extends DialogFragment {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count,
                                               int after) {
-                    // TODO Auto-generated method stub
                 }
 
                 @Override
@@ -193,25 +257,25 @@ public class AddEditDialogFragment extends DialogFragment {
 
     private void initDueDate(){
         // set DatePicker to current date
-        Date today = new Date( System.currentTimeMillis());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime( today );
-        mPickerDueDate.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH));
-
-        //mCalendarDueDate.setDate
+        mDueDate = Calendar.getInstance();
+        updateTextViewDate();
     }
 
     private void setDueDate( Date dueDate){
-        if( dueDate != null) {
-            //convert to a time stamp and update the DatePicker
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dueDate);
-            mPickerDueDate.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH));
+        if( mDueDate == null){
+            mDueDate = Calendar.getInstance();
         }
-        else
-            initDueDate();
+        if( dueDate != null)
+            mDueDate.setTime( dueDate);
+        updateTextViewDate();
+    }
+
+    private void updateTextViewDate(){
+        if( mTextViewDate != null){
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d , h:mm a");
+
+            mTextViewDate.setText( sdf.format( mDueDate.getTime() ).toString() );
+        }
     }
 
     private boolean validateEntries(){
@@ -231,8 +295,6 @@ public class AddEditDialogFragment extends DialogFragment {
     }
 
     private void  onSave(  ) {
-        //TaskDb task = new TaskDb();
-
        if( ! validateEntries())
            return;
 
@@ -241,14 +303,7 @@ public class AddEditDialogFragment extends DialogFragment {
         }
         mTask.setTitle( mEditTextTitle.getText().toString());
         mTask.setPriority( mSpinnerPriority.getSelectedItem().toString() ); ;
-        //Set date in milliseconds
-        Calendar dueDate = Calendar.getInstance();
-
-        dueDate.set(Calendar.DAY_OF_MONTH, mPickerDueDate.getDayOfMonth());
-        dueDate.set(Calendar.MONTH, mPickerDueDate.getMonth());
-        dueDate.set(Calendar.YEAR, mPickerDueDate.getYear());
-
-        mTask.setDueDate( dueDate.getTime() );
+        mTask.setDueDate( mDueDate.getTime() );
         if ( (mModeStr.equalsIgnoreCase(MODE_NEW)) && (mListener != null) ) {
             mTask.setID( UUID.randomUUID().toString() );
             // TODO : setTaskList ID.
@@ -265,26 +320,9 @@ public class AddEditDialogFragment extends DialogFragment {
         dismiss();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnAddEditFragmentInteractionListener) {
-            mListener = (OnAddEditFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnAddEditFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
     /* This interface must be implemented by activities / fragments that
-     * expect to receive data/ completion status from this fragment after invocation.
-     */
+         * expect to receive data/ completion status from this fragment after invocation.
+         */
     public interface OnAddEditFragmentInteractionListener {
         void onFinishAddEditDialog(ITask task , String mode , int position);
     }

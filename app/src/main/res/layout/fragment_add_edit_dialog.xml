@@ -54,20 +54,53 @@
         android:layout_marginBottom="@dimen/marginEditDialog"/>
 
 
+    <TextView
+        android:text="@string/due_on"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/LargePrimaryDarkFont.Bold"
+       />
 
-        <TextView
-            android:text="@string/due_on"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/LargePrimaryDarkFont.Bold"/>
-
+<!--
         <DatePicker
             android:id="@+id/duedate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:calendarViewShown="false"
             android:datePickerMode="spinner" />
+-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/marginEditDialog"
+        >
+        <TextView
+            android:id="@+id/textview_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/marginEditDialog"
+            android:text="07 August 2017 at 07:00 AM"
+            style="@style/MediumPrimaryFont.Bold.Italic"
+            android:layout_marginRight="@dimen/marginEditDialog"/>
 
+        <FrameLayout
+            android:id="@+id/imageButtonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_edit"
+                android:paddingRight="5dp"
+                />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
         <Button
             android:id="@+id/save"

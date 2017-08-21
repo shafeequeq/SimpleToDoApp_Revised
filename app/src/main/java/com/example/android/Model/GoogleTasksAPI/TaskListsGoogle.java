@@ -1,6 +1,6 @@
 package com.example.android.Model.GoogleTasksAPI;
 
-import com.example.android.Model.ITask;
+import com.example.android.Interface.ITask;
 
 import java.util.ArrayList;
 import java.util.Collection;

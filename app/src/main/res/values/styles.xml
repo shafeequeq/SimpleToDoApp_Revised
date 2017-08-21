@@ -42,6 +42,14 @@
         <item name="android:textSize">@dimen/mediumFont</item>
     </style>
 
+    <style name="MediumPrimaryFont.Bold">
+      <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MediumPrimaryFont.Bold.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
     <style name="LargePrimaryDarkFont.Bold">
         <item name="android:textStyle">bold</item>
     </style>

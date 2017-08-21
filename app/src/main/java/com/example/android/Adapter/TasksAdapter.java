@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.Fragment.TodayFragment;
+import com.example.android.Interface.ITask;
 import com.example.android.Model.Database.DatabaseInitializer;
-import com.example.android.Model.ITask;
 import com.example.android.simpletodoapprevised.R;
 
 import java.text.SimpleDateFormat;
@@ -40,35 +40,25 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         public TextView mTaskTitle, mTaskDueDate;
         public CircleImageView mImgView;
-        //public ImageView mImgView;
-        //public LinearLayout taskContainer;
 
         public MyViewHolder(View view) {
             super(view);
             mTaskTitle = (TextView) view.findViewById(R.id.txt_tasktitle);
-           // mTaskNotes = (TextView) view.findViewById(R.id.txt_notes);
-            //taskDueDesc = (TextView) view.findViewById(R.id.txt_due_string);
             mTaskDueDate = (TextView) view.findViewById(R.id.txt_due_date);
             mImgView = (CircleImageView) view.findViewById(R.id.priority);
 
-            //taskContainer = (LinearLayout) view.findViewById(R.id.task_container);
-            //  view.setOnLongClickListener(this);
         }
 
         @Override
         public boolean onLongClick(View view) {
-            //listener.onRowLongClicked(getAdapterPosition());
             if( mTaskAdapterCallback != null){
                 mTaskAdapterCallback.onLongClick( view , getAdapterPosition() );
-
                 int color = getContext().getResources().getColor( R.color.dark_grey );
                 view.setBackgroundColor( color );
             }
             return true;
         }
     }
-
-
     public TasksAdapter(Context mContext, List<ITask> tasks , TaskItemTouchHelperCallback.ITaskAdapterCallback taskAdapterCallback) {
         this.mContext = mContext;
         this.mTasks = tasks;
@@ -107,13 +97,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
 
         // set all text views.
         holder.mTaskTitle.setText(task.getTitle());
-       // holder.mTaskNotes.setText(task.getNotes());
-
 
         Date dueDate = task.getDue();
-        Date compareDate = START_OF_DAY;
-
-
         if (dueDate != null) {
             String dueString;
             if (dueDate.compareTo(START_OF_DAY) < 0) {
@@ -127,7 +112,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
                 SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
                 dueString = getContext().getString(R.string.due_today)
                         + " : " + sdf.format(dueDate);
-                holder.mTaskDueDate.setTextColor(Color.BLUE);
+
+                holder.mTaskDueDate.setTextColor( Color.BLUE );
             } else {
                 // Show time of day when this is due.
                 SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, ''yy");
@@ -168,13 +154,12 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.MyViewHolder
     }
 
     @Override
-    public void onSwiped(int position, int direction) {
-        // TODO when swipe RIGHT edit Item.
+    public void onDelete( int position ) {
+        mTasks.remove(position);
+        notifyItemRemoved(position);
 
-        mTasks.remove( position );
-        notifyItemRemoved( position );
     }
-
+    @Override
     public void onUpdated(int position, ITask task){
         mTasks.set( position , task);
         notifyItemChanged( position );

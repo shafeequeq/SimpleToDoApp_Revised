@@ -7,7 +7,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 
 import com.example.android.Helper.DateConverter;
-import com.example.android.Model.ITask;
+import com.example.android.Interface.ITask;
 
 import java.io.Serializable;
 import java.util.Date;

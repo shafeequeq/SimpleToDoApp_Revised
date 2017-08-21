@@ -12,8 +12,6 @@
     <string name="action_search">Search</string>
     <string name="action_delete">Delete</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="fragment_today">Today</string>
     <string name="fragment_inbox">Inbox</string>
     <string name="fragment_seven_days">Next Seven Days</string>
@@ -24,7 +22,7 @@
     <string name="mark_as_complete">Mark as complete</string>
     <string name="save">Save</string>
     <string name="due_today">Due </string>
-    <string name="due_on">Due </string>
+    <string name="due_on">Overdue</string>
     <string name="priority">Priority</string>
     <string name="title">Title</string>
     <string name="menu_refresh">Load JSON data</string>

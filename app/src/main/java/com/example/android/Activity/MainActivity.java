@@ -22,12 +22,12 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.android.Fragment.AddEditDialogFragment;
-import com.example.android.Fragment.IFragmentActivityCallback;
+import com.example.android.Interface.IFragmentActivityCallback;
 import com.example.android.Fragment.TodayFragment;
 import com.example.android.Model.Database.DatabaseInitializer;
 import com.example.android.Model.Database.TaskDatabase;
 import com.example.android.Model.Database.TaskDb;
-import com.example.android.Model.ITask;
+import com.example.android.Interface.ITask;
 import com.example.android.simpletodoapprevised.R;
 
 import java.util.ArrayList;
@@ -134,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         OnFragmentSelected( id );
 
-        // TODO: handle navigation
-
         // Closing drawer on item click
         mDrawerLayout.closeDrawers();
         return true;
@@ -146,11 +144,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         int id = item.getItemId();
 
-       /* if (id == R.id.action_search) {
-            Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        else */ if( id == R.id.menu_refresh ){
+        if( id == R.id.menu_refresh ){
             // TODO : show warning message to user, that his current data will be deleted. Take consent before loading.
             if( mDB != null ){
                 DatabaseInitializer.populateSyncFromJSON( mDB , this );
@@ -201,11 +195,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+     /*
+    Data Model Add / Update methods. can later be moved to a specific data model class.
+     */
+
+    @Override
+    public void taskAdded(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().insertTask((TaskDb) task);
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void taskUpdated(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().updateTasks((TaskDb) task);
+
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+                finally {
+                }
+            }
+        }
+    }
+
+    @Override
+    public void taskDeleted(ITask task) {
+        if( mDB != null){
+            if( task instanceof TaskDb ){
+                try {
+                    mDB.taskModel().deleteTask((TaskDb) task);
+                }
+                catch (Exception e){
+                    Log.e(TAG , e.getMessage());
+                }
+            }
+        }
+    }
+
     private void initFragment(){
 
         TodayFragment firstFragment = TodayFragment.newInstance( FilterData.FILTER_TODAY );
 
-        // Add the fragment to the 'fragment_container' FrameLayout
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, firstFragment).commit();
     }
@@ -272,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if( mDB == null){
             mDB = TaskDatabase.getDatabase( this );
         }
-        //DatabaseInitializer.populateSyncFromJSON( mDB , this );
     }
 
     public interface IFragmentCommunication {
@@ -292,52 +333,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    /*
-    Data Model Add / Update methods. can later be moved to a specific data model class.
-     */
 
-    @Override
-    public void taskAdded(ITask task) {
-        if( mDB != null){
-            if( task instanceof TaskDb ){
-                try {
-                    mDB.taskModel().insertTask((TaskDb) task);
-                }
-                catch (Exception e){
-                    Log.e(TAG , e.getMessage());
-                }
-            }
-        }
-    }
-
-    @Override
-    public void taskUpdated(ITask task) {
-        if( mDB != null){
-            if( task instanceof TaskDb ){
-                try {
-                    mDB.taskModel().updateTasks((TaskDb) task);
-
-                }
-                catch (Exception e){
-                    Log.e(TAG , e.getMessage());
-                }
-                finally {
-                }
-            }
-        }
-    }
-
-    @Override
-    public void taskDeleted(ITask task) {
-        if( mDB != null){
-            if( task instanceof TaskDb ){
-                try {
-                    mDB.taskModel().deleteTask((TaskDb) task);
-                }
-                catch (Exception e){
-                    Log.e(TAG , e.getMessage());
-                }
-            }
-        }
-    }
 }

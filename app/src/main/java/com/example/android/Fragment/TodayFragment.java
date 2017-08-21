@@ -24,8 +24,9 @@ import android.widget.Toast;
 import com.example.android.Activity.MainActivity;
 import com.example.android.Adapter.TaskItemTouchHelperCallback;
 import com.example.android.Adapter.TasksAdapter;
+import com.example.android.Interface.IFragmentActivityCallback;
+import com.example.android.Interface.ITask;
 import com.example.android.Model.Database.TaskDb;
-import com.example.android.Model.ITask;
 import com.example.android.simpletodoapprevised.R;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import static com.example.android.Activity.MainActivity.FILTER_KEY;
 
+//import android.support.annotation.Nullable;
 
 
 public class TodayFragment extends Fragment implements MainActivity.IFragmentCommunication ,
@@ -147,15 +149,11 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
     @Override
     public void onStop() {
         super.onStop();
-        // TODO persist data to database.
     }
 
     // Will be called by the parent activity when data has been refreshed from other active fragments. Will rarely be used, as we are syncing the adapter OnResume().
     @Override
     public void refreshData(  ) {
-         /*mAdapter.reloadTasks( newData );
-         mAdapter.notifyDataSetChanged();
-         checkIfEmpty();*/
         fetchData();
     }
 
@@ -218,6 +216,20 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
         checkIfEmpty();
     }
 
+    private int mItemPosition = 0;
+    // Long clicks on an item will invoke the action Mode.
+    @Override
+    public boolean onLongClick(View view , int position) {
+        if (mCurrentActionMode != null) { return false; }
+        mItemPosition = position;
+        ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
+        view.setSelected(true);
+        return true;
+    }
+
+    private int getPosition(){
+        return mItemPosition;
+    }
     private void editTask( int position ){
         TaskDb taskDB = null;
         ITask task = mAdapter.getItem( position );
@@ -233,7 +245,7 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
     private void deleteTask( int position ){
         // notify adapters of delete
         ITask taskDeleted = mAdapter.getItem( position );
-        mAdapter.onSwiped( position , ItemTouchHelper.LEFT);
+        mAdapter.onDelete( position );
         mActivityCallback.taskDeleted( taskDeleted );
         checkIfEmpty();
     }
@@ -299,7 +311,8 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
     // For adapters to implement
     public interface ItemTouchAdapterCallback{
         public boolean onMove(int sourcePos , int destPos );
-        public void onSwiped(int position, int direction);
+        public void onDelete(int position);
+        public void onUpdated(int position, ITask task);
     }
 
 
@@ -350,19 +363,7 @@ public class TodayFragment extends Fragment implements MainActivity.IFragmentCom
 
     };
 
-    private int mItemPosition = 0;
-    @Override
-    public boolean onLongClick(View view , int position) {
-        if (mCurrentActionMode != null) { return false; }
-        mItemPosition = position;
-        ((AppCompatActivity) getActivity()).startSupportActionMode(mActionModeCallback);
-        view.setSelected(true);
-        return true;
-    }
 
-    private int getPosition(){
-        return mItemPosition;
-    }
 }
 
 

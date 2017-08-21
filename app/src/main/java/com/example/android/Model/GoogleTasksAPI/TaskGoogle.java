@@ -6,7 +6,7 @@ package com.example.android.Model.GoogleTasksAPI;
 
 import android.graphics.Color;
 
-import com.example.android.Model.ITask;
+import com.example.android.Interface.ITask;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,13 +136,11 @@ public class TaskGoogle implements ITask {
 
     @Override
     public Date getLastUpdated() {
-        // TODO - update getLastUpdated status.
         return updated;
     }
 
     @Override
     public void setLastUpdated(Date updatedDate) {
-            // TODO - update LastUpdated status.
         this.updated = updatedDate;
     }
 

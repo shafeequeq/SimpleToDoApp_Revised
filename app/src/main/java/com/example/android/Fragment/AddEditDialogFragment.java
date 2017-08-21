@@ -3,11 +3,15 @@ package com.example.android.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -46,6 +50,7 @@ public class AddEditDialogFragment extends DialogFragment {
     private DatePicker mPickerDueDate;
     private CheckBox mCheckBoxIsComplete;
     private Button mBtnSave;
+    private TextInputLayout mTaskTitleLabel = null;
 
     private OnAddEditFragmentInteractionListener mListener;
 
@@ -92,7 +97,8 @@ public class AddEditDialogFragment extends DialogFragment {
         mEditTextTitle = (EditText)view.findViewById( R.id.title);
         mSpinnerPriority = (Spinner) view.findViewById( R.id.priority);
         mPickerDueDate = (DatePicker) view.findViewById( R.id.duedate);
-        //mCheckBoxIsComplete = (CheckBox)view.findViewById( R.id.is_complete);
+        mTaskTitleLabel = (TextInputLayout) view.findViewById(R.id.title_layout);
+        setupTaskTitleLabelError();
         mBtnSave = (Button)view.findViewById( R.id.save);
         mBtnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +108,9 @@ public class AddEditDialogFragment extends DialogFragment {
 
             }
         });
+
+        ArrayAdapter adapter = ArrayAdapter.createFromResource( getContext() , R.array.priority , R.layout.spinner_dropdown_item );
+        mSpinnerPriority.setAdapter( adapter );
 
         mEditTextTitle.requestFocus();
         getDialog().getWindow().setSoftInputMode(
@@ -137,6 +146,38 @@ public class AddEditDialogFragment extends DialogFragment {
 
     }
 
+
+    private void setupTaskTitleLabelError() {
+        //final TextInputLayout taskTitleLabel = (TextInputLayout) view.findViewById(R.id.title_layout);
+        if( mTaskTitleLabel != null){
+            mTaskTitleLabel.getEditText().addTextChangedListener(new TextWatcher() {
+                // ...
+                @Override
+                public void onTextChanged(CharSequence text, int start, int count, int after) {
+                    if (text.length() > 0 ) {
+                        mTaskTitleLabel.setHintEnabled(false);
+                        mTaskTitleLabel.setErrorEnabled(false);
+                    } else {
+                        mTaskTitleLabel.setError(getString(R.string.title_required));
+                        mTaskTitleLabel.setErrorEnabled(true);
+                    }
+                }
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count,
+                                              int after) {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+        }
+
+    }
+
     private void initControls(){
         initDueDate();
         // set priority to Normal
@@ -164,9 +205,27 @@ public class AddEditDialogFragment extends DialogFragment {
             initDueDate();
     }
 
+    private boolean validateEntries(){
+        String taskTitle = null;
+        if( mEditTextTitle != null){
+            taskTitle = mEditTextTitle.getText().toString();
+            if (( taskTitle == null )||( taskTitle.isEmpty())){
+                if ( mTaskTitleLabel != null ){
+                    mTaskTitleLabel.setError(getString(R.string.title_required));
+                    mTaskTitleLabel.setErrorEnabled(true);
+                }
+            }
+            else
+                return true;
+        }
+        return false;
+    }
 
     private void  onSave(  ) {
         //TaskDb task = new TaskDb();
+
+       if( ! validateEntries())
+           return;
 
         if( mTask == null){
             mTask = new TaskDb();

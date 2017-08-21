@@ -15,7 +15,7 @@
 
     <style name="AppTheme" parent="AppTheme.Base"></style>
 
-    <style name="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:actionModeBackground">@color/colorPrimary</item>
@@ -28,4 +28,32 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="LargeFont">
+        <item name="android:textSize">@dimen/largeFont</item>
+    </style>
+
+    <style name="LargePrimaryDarkFont" parent="@style/LargeFont">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="MediumPrimaryFont">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/mediumFont</item>
+    </style>
+
+    <style name="LargePrimaryDarkFont.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Hint"   parent="TextAppearance.Design.Hint"></style>
+    <style name="Error" parent="TextAppearance.Design.Error"></style>
+
+    <style name="SaveButton" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textSize">@dimen/largeFont</item>
+    </style>
+
 </resources>

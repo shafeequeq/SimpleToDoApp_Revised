@@ -34,4 +34,6 @@
     <string name="swipe_down">"Swipe down to exit search mode..."</string>
     <string name="search_results">" Search Results .."</string>
     <string name="item_deleted">"Item deleted!"</string>
+    <string name="title_edit_hint">Enter a title for new task</string>
+    <string name="title_required">Title is mandatory</string>
 </resources>

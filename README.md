@@ -40,12 +40,17 @@ The following **additional** features are implemented:
 * [X] Empty View (Happy image ) - When zero items in list.
 * [X] DividerItemDecoration for line splits in RecyclerView of tasks.
 
+The following **additional** changes were implemented after submission:
+* [X] Cleanup DialogFragment UI to leverage style tips from Codepath documentation.
+* [X] Leverage TextHint and TextError for Task title.
+* [X] Used CircleImageView library in the Recycler Items.
+* [X] Used CalendarPicker and TimePicker libraries for editing Due-Date and time.
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='/art/Simpletodo4.gif?raw=true' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='/art/Simpletodo5.gif?raw=true' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
